@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI依恋人格测试 — 看看你是哪种「爱情人格」</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:100vh;color:#fff;overflow-x:hidden}
+.container{max-width:500px;margin:0 auto;padding:20px;min-height:100vh}
+/* 页面容器 */
+.page{display:none;animation:fadeIn .5s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* 首页 */
+.hero{padding:40px 0;text-align:center}
+.hero .emoji{font-size:80px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.hero h1{font-size:28px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#f093fb,#f5576c,#fda085);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .subtitle{font-size:15px;color:#b0b0c0;margin-bottom:8px;line-height:1.6}
+.hero .stats{display:flex;justify-content:center;gap:24px;margin:24px 0;font-size:13px;color:#888}
+.hero .stats span{color:#f5576c;font-weight:700}
+.hero .btn-start{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#f093fb,#f5576c);border:none;border-radius:50px;color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none}
+.hero .btn-start:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(245,87,108,.4)}
+/* 问题页 */
+.question-page{padding:20px 0}
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin-bottom:40px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f093fb,#f5576c);transition:width .3s ease;border-radius:3px}
+.question-num{font-size:13px;color:#f5576c;margin-bottom:12px;letter-spacing:1px}
+.question-text{font-size:22px;font-weight:700;margin-bottom:32px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:12px}
+.option{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 20px;cursor:pointer;transition:all .2s;font-size:16px;color:#d0d0d0}
+.option:hover,.option.selected{background:rgba(245,87,108,.15);border-color:#f5576c;color:#fff}
+/* 加载页 */
+.loading-page{text-align:center;padding:60px 0}
+.loading-spinner{width:60px;height:60px;border:3px solid rgba(255,255,255,.1);border-top-color:#f5576c;border-radius:50%;margin:0 auto 24px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:16px;color:#b0b0c0;margin-bottom:8px}
+.loading-sub{font-size:13px;color:#666}
+/* 结果页 */
+.result-page{text-align:center}
+.result-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:32px 24px;margin:20px 0}
+.result-type{font-size:36px;margin-bottom:8px}
+.result-name{font-size:28px;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,#f093fb,#f5576c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-tagline{font-size:14px;color:#b0b0c0;margin-bottom:24px;font-style:italic}
+.result-desc{font-size:15px;line-height:1.8;color:#ccc;text-align:left}
+.result-desc .section-title{font-size:18px;font-weight:700;color:#f5576c;margin:20px 0 12px}
+/* 付费遮罩 */
+.premium-blur{position:relative;margin-top:16px}
+.premium-blur .content{filter:blur(8px);opacity:.3;user-select:none}
+.premium-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%}
+.premium-overlay .lock{font-size:48px;margin-bottom:12px}
+.premium-overlay .title{font-size:18px;font-weight:700;margin-bottom:8px}
+.premium-overlay .price{font-size:32px;font-weight:800;color:#f5576c;margin-bottom:4px}
+.premium-overlay .price small{font-size:14px;font-weight:400;color:#888}
+.premium-overlay .hint{font-size:12px;color:#888;margin-bottom:20px}
+.btn-pay{display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#f093fb,#f5576c);border:none;border-radius:50px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:transform .2s}
+.btn-pay:hover{transform:scale(1.05)}
+/* 分享按钮 */
+.share-section{margin-top:24px}
+.btn-share{display:inline-block;padding:14px 36px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-share:hover{background:rgba(255,255,255,.15)}
+.btn-retry{margin-top:12px;display:inline-block;padding:12px 32px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:50px;color:#888;font-size:14px;cursor:pointer}
+/* 支付弹窗 */
+.payment-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.payment-modal.active{display:flex}
+.modal-content{background:#1e1e3a;border-radius:24px;padding:32px;text-align:center;max-width:360px;width:90%}
+.modal-close{float:right;background:none;border:none;color:#888;font-size:24px;cursor:pointer}
+.modal-qr{width:200px;height:200px;background:rgba(255,255,255,.1);border-radius:16px;margin:20px auto;display:flex;align-items:center;justify-content:center;font-size:14px;color:#888}
+.modal-text{font-size:14px;color:#b0b0c0;margin:12px 0;line-height:1.6}
+.btn-done{display:inline-block;padding:12px 36px;background:linear-gradient(135deg,#f093fb,#f5576c);border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.disclaimer{margin-top:40px;font-size:11px;color:#555;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+
+  <!-- 首页 -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="emoji">🔮</div>
+      <h1>AI 依恋人格测试</h1>
+      <p class="subtitle">基于心理学依恋理论<br>AI 深度学习你的12道选择<br>揭示你隐藏最深的爱情模式</p>
+      <div class="stats">
+        <span>🔥 已有 <b style="color:#f5576c">128,947</b> 人测试</span>
+      </div>
+      <button class="btn-start" onclick="startTest()">✨ 开始免费测试</button>
+      <p style="color:#666;font-size:12px;margin-top:16px">约3分钟 · 完全免费 · 结果可分享</p>
+    </div>
+    <div class="disclaimer">※ 本测试仅供娱乐参考，不构成专业心理诊断</div>
+  </div>
+
+  <!-- 题目页 -->
+  <div class="page" id="page-question">
+    <div class="question-page">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="question-num" id="question-num">Q1 / 12</div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div>
+    </div>
+  </div>
+
+  <!-- 加载页 -->
+  <div class="page" id="page-loading">
+    <div class="loading-page">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">AI 正在分析你的依恋模式…</p>
+      <p class="loading-sub">深度解读中，请稍候 ✨</p>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="page-result">
+    <div class="result-page">
+      <div class="result-card">
+        <div class="result-type" id="result-emoji"></div>
+        <div class="result-name" id="result-name"></div>
+        <div class="result-tagline" id="result-tagline"></div>
+        <div class="result-desc" id="result-desc"></div>
+
+        <!-- 付费深度解读 -->
+        <div class="premium-blur" id="premium-section">
+          <div class="content">
+            <p style="color:#555">解锁中...</p>
+          </div>
+          <div class="premium-overlay">
+            <div class="lock">🔒</div>
+            <p class="title">解锁 AI 深度解读</p>
+            <p class="price">¥1.99 <small>/ 永久</small></p>
+            <p class="hint">AI 定制你的专属恋爱指南</p>
+            <button class="btn-pay" onclick="showPayment()">💫 立即解锁</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="share-section">
+        <button class="btn-share" onclick="shareResult()">📤 分享给朋友</button>
+        <br>
+        <button class="btn-retry" onclick="retryTest()">重新测试</button>
+      </div>
+      <div class="disclaimer">※ 本测试仅供娱乐参考，不构成专业心理诊断</div>
+    </div>
+  </div>
+
+  <!-- 支付弹窗 -->
+  <div class="payment-modal" id="payment-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closePayment()">&times;</button>
+      <p style="font-size:18px;font-weight:700">解锁AI深度解读</p>
+      <p style="color:#b0b0c0;font-size:13px;margin-top:8px">¥1.99 永久解锁</p>
+      <div class="modal-qr" id="qr-box">
+        <span>扫码支付<br>¥1.99</span>
+      </div>
+      <p class="modal-text">支付后，AI会为你生成：<br>💌 专属恋爱指南<br>⚠️ 情感盲区预警<br>💡 改善关系建议<br>🎯 最匹配的人格类型</p>
+      <button class="btn-done" onclick="unlockPremium()">💰 我已支付，立即解锁</button>
+      <p style="color:#555;font-size:11px;margin-top:12px">支付直接到你账户 · 无需跳转</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+// ========== 数据 ==========
+const questions = [
+  { q: "当你喜欢的人不回消息超过2小时，你脑子里第一个想法是？", opts: [
+    { text: "TA是不是出什么事了？马上再发一条", score: [3,0,1] },
+    { text: "TA可能在忙，我继续做自己的事", score: [0,3,0] },
+    { text: "生气但忍住不发，等TA主动找我", score: [1,1,2] },
+    { text: "无所谓，我也经常不回消息", score: [0,1,3] }
+  ]},
+  { q: "吵架时，你通常怎么做？", opts: [
+    { text: "马上想和好，哪怕自己委屈一点", score: [3,0,1] },
+    { text: "冷静分析问题，理性沟通", score: [0,3,0] },
+    { text: "冷战，等对方先低头", score: [1,1,2] },
+    { text: "吵完就算了，懒得纠结", score: [0,1,3] }
+  ]},
+  { q: "在亲密关系中，你最大的恐惧是什么？", opts: [
+    { text: "怕被抛弃，怕对方突然不爱我了", score: [3,0,2] },
+    { text: "怕失去自我，被关系束缚", score: [1,2,3] },
+    { text: "怕付出真心后被伤害", score: [1,3,1] },
+    { text: "没什么特别怕的", score: [0,2,3] }
+  ]},
+  { q: "伴侣和朋友出去玩没带你，你感觉？", opts: [
+    { text: "很难受，总觉得TA不爱我了", score: [3,0,1] },
+    { text: "可以理解，大家都需要自己的空间", score: [0,3,0] },
+    { text: "心里不舒服但不说，自己憋着", score: [1,1,2] },
+    { text: "正好我也找朋友玩，各玩各的", score: [0,1,3] }
+  ]},
+  { q: "你的理想恋爱节奏是？", opts: [
+    { text: "天天黏在一起，时刻分享动态", score: [3,0,0] },
+    { text: "亲密但有边界，有各自的生活", score: [0,3,1] },
+    { text: "忽冷忽热，保持神秘感", score: [1,1,2] },
+    { text: "顺其自然，不强求", score: [0,1,3] }
+  ]},
+  { q: "对方说「我爱你」，你的第一反应？", opts: [
+    { text: "我也爱你！然后疯狂确认对方是不是认真的", score: [2,0,1] },
+    { text: "甜蜜地回应，这是自然的情感流动", score: [0,3,0] },
+    { text: "有点不知所措...真的吗？", score: [1,2,2] },
+    { text: "笑一笑，不习惯表达感情", score: [0,1,3] }
+  ]},
+  { q: "发现伴侣有些缺点让你不爽，你会？", opts: [
+    { text: "忍着不说，怕吵架影响感情", score: [2,0,2] },
+    { text: "坦诚沟通，一起解决问题", score: [0,3,0] },
+    { text: "暗示但不明说，希望TA自己发现", score: [1,1,2] },
+    { text: "这有什么，人都有缺点", score: [0,1,3] }
+  ]},
+  { q: "关于前任，你的态度是？", opts: [
+    { text: "偶尔会想起，会对比现在的关系", score: [2,0,2] },
+    { text: "过去的就过去了，专注现在", score: [0,3,0] },
+    { text: "不想提，也不想听对方提前任", score: [1,1,3] },
+    { text: "无所谓，聊到就聊", score: [0,1,3] }
+  ]},
+  { q: "周末一个人在家，你什么心情？", opts: [
+    { text: "孤独、空虚，想找人陪", score: [3,0,1] },
+    { text: "享受独处，看书追剧", score: [0,3,1] },
+    { text: "还行，但也会觉得有点闷", score: [1,1,2] },
+    { text: "太爽了，终于有自己的时间", score: [0,0,3] }
+  ]},
+  { q: "如果感情出问题，你第一反应是？", opts: [
+    { text: "是我的错，我做得不够好", score: [3,0,1] },
+    { text: "分析问题出在哪，怎么解决", score: [0,3,0] },
+    { text: "烦死了，不想面对", score: [0,1,3] },
+    { text: "可能本来就不合适", score: [1,1,3] }
+  ]},
+  { q: "你觉得自己在恋爱中最像什么？", opts: [
+    { text: "一只需要很多抱抱的小狗", score: [3,0,0] },
+    { text: "一棵沉稳的大树", score: [0,3,0] },
+    { text: "一只警觉的猫，靠近又退缩", score: [1,1,2] },
+    { text: "一只独狼，自由自在", score: [0,1,3] }
+  ]},
+  { q: "对未来的感情，你最想要什么？", opts: [
+    { text: "一个永远不会离开我的人", score: [3,0,1] },
+    { text: "一个互相成就、共同成长的人", score: [0,3,0] },
+    { text: "一个能看穿我所有伪装的人", score: [1,1,2] },
+    { text: "开心就好，不设期望", score: [0,1,3] }
+  ]}
+];
+
+// 四种依恋类型: [焦虑型, 安全型, 恐惧型, 回避型]
+const STYLE_NAMES = ['焦虑型', '安全型', '恐惧型', '回避型'];
+const STYLE_EMOJIS = ['🥺', '💚', '😰', '😎'];
+const STYLE_BASE = [
+  {
+    name: '焦虑型依恋 · 小太阳',
+    tagline: '"你爱我吗？那再说一遍"',
+    desc: `<span class="section-title">💡 你的依恋模式</span>
+    你把感情看得很重，是那种爱了就全力以赴的人。你需要大量的情感确认和安全感，对方的每一条消息、每一个眼神都牵动你的心弦。有时候你会觉得自己"太粘人了"，但这其实是你表达爱的方式。
+    <span class="section-title">❤️ 你的爱情优势</span>
+    热情、忠诚、感情浓度高。和你恋爱的人会被你深深的在乎所打动。你擅长制造浪漫，愿意为对方付出一切。
+    <span class="section-title">⚠️ 你的挑战</span>
+    容易过度解读对方的行为，常把"不秒回"等同"不爱了"。需要学会给自己安全感，不要把自我价值绑定在对方的回应上。`
+  },
+  {
+    name: '安全型依恋 · 大树',
+    tagline: '"我爱你，但我也爱自己"',
+    desc: `<span class="section-title">💡 你的依恋模式</span>
+    你是恋爱中的"稀有物种"——能爱人也能被爱，不焦虑不逃避。你对自己有清晰的认知，对伴侣有健康的期待。在感情中既能亲密又能独立。
+    <span class="section-title">❤️ 你的爱情优势</span>
+    情绪稳定、沟通顺畅、信任给予。你是关系的"定海神针"，和你在一起的人会感到安全、被尊重。你不需要戏剧性的爱情来证明什么。
+    <span class="section-title">⚠️ 你的挑战</span>
+    有时候你的"太正常"可能会让焦虑型伴侣觉得你不够在乎。你需要学习更有感染力地表达爱意，让对方感受到你的温度。`
+  },
+  {
+    name: '恐惧型依恋 · 刺猬',
+    tagline: '"靠近我，但别太近"',
+    desc: `<span class="section-title">💡 你的依恋模式</span>
+    你是最复杂的一种类型——内心极度渴望亲密，但同时极度害怕。你像一只刺猬，想靠近却怕受伤。这种矛盾让你在关系中经常进退两难。
+    <span class="section-title">❤️ 你的爱情优势</span>
+    敏感、深刻、情感丰富。一旦你真正信任一个人，你会展现出惊人的柔情和忠诚。你对人性的洞察力很强，能理解伴侣内心深处的东西。
+    <span class="section-title">⚠️ 你的挑战</span>
+    信任是最大的障碍。你容易在关系顺利时突然"搞破坏"，因为你觉得"迟早会受伤不如自己先走"。你需要学习相信别人的善意。`
+  },
+  {
+    name: '回避型依恋 · 独狼',
+    tagline: '"我一个人很好，谢谢"',
+    desc: `<span class="section-title">💡 你的依恋模式</span>
+    你享受独立，重视个人空间。对你来说，亲密关系是一件"有了很好，没有也行"的事。你不习惯表达情感，也不喜欢被别人过度依赖。
+    <span class="section-title">❤️ 你的爱情优势</span>
+    独立、理性、不添麻烦。你不会在感情中无理取闹，不会用情绪绑架对方。你能给伴侣很大的自由和空间。
+    <span class="section-title">⚠️ 你的挑战</span>
+    有时候你的"冷"会让伴侣觉得你根本不在乎。你需要学习适当表达情感，让对方知道你心里有TA。独立不等于孤独，亲密不等于束缚。`
+  }
+];
+
+const STYLE_PREMIUM = [
+  {
+    loveGuide: "你需要的是一个能给你持续安全感的伴侣。找一个愿意每天对你说「我爱你」的人，找一个不嫌你「粘人」的人。但最重要的是——学会告诉自己：「我值得被爱，即使TA今天很忙」。当你把安全感建立在自己身上，你的感情会更加自在。",
+    blindspot: "你容易把对方的正常行为当作「不爱了」的信号。当TA开会没回消息时，你的大脑会自动播放「TA是不是不爱我了」的小剧场。学会区分「事实」和「恐惧」。",
+    advice: "■ 延迟反应：感到焦虑时，先等15分钟再行动\n■ 写情绪日记：记录你触发焦虑的具体情境\n■ 直接表达：告诉伴侣「我需要你说爱我」而不是生闷气",
+    match: "安全型依恋（大树）—— TA的稳定会慢慢治愈你的焦虑"
+  },
+  {
+    loveGuide: "你的恋爱能力已经很强了。你不需要「补短板」，而是需要「发挥长板」——用你的稳定去滋养关系。当你遇到一个值得的人，放心大胆去爱。",
+    blindspot: "你的「太正常」有时会被误解为「不够爱」。焦虑型伴侣可能需要更热烈的情感表达。学会偶尔疯狂一下，让对方感受到你的热度。",
+    advice: "■ 定期制造惊喜：让伴侣感受到你的在意\n■ 深度倾听：不只是给建议，而是共情\n■ 保持开放：不要因为自己稳定就觉得别人矫情",
+    match: "任何类型都能处好——你是关系中的「万能适配器」"
+  },
+  {
+    loveGuide: "你的核心课题是「信任」。你不是不需要爱，而是太害怕受伤害。找一个有耐心的人，一个在你推开的第99次依然会回来的人。但在此之前——你需要先对一个人（包括自己）说：「我决定相信你」。",
+    blindspot: "你会在关系变好的时候「搞破坏」——比如突然冷淡、找茬吵架。这不是因为你不爱了，而是你的潜意识在说「与其被伤害，不如我先离开」。",
+    advice: "■ 小步试探：给自己设定「信任梯度」，一步步来\n■ 表达恐惧：告诉伴侣「我现在很害怕」，而不是「你走吧」\n■ 心理咨询：恐惧型依恋往往有创伤根源，寻求专业帮助",
+    match: "安全型依恋（大树）—— TA不会因为你推开就离开"
+  },
+  {
+    loveGuide: "你的自由很重要，没问题。但如果有一天你遇到了一个让你愿意「不那么自由」的人，不要逃跑。亲密不是牢笼，它可以是两个人的冒险。",
+    blindspot: "你容易在对方需要你的时候「消失」。伴侣可能需要你更多的情感投入，而你本能地后退。这种拉扯会让对方受伤。",
+    advice: "■ 练习表达：每周至少一次主动说「我想你」\n■ 设定小目标：这周给伴侣一个惊喜\n■ 理解差异：你的「没什么」可能是对方的「很受伤」",
+    match: "焦虑型依恋（小太阳）—— TA的热情能融化你的冷淡，形成互补"
+  }
+];
+
+// ========== 状态 ==========
+let currentQ = 0;
+let scores = [0, 0, 0, 0]; // [焦虑, 安全, 恐惧, 回避]
+let answers = []; // 存储实际选择的选项索引
+let resultStyle = 0;
+let isPaid = false;
+
+// AI API 地址 - 部署后替换为你的 Vercel 域名
+const API_URL = '/api/generate';
+
+// ========== UI ==========
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ========== 流程 ==========
+function startTest() {
+  currentQ = 0;
+  scores = [0, 0, 0, 0];
+  answers = [];
+  resultStyle = 0;
+  isPaid = false;
+  showPage('question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('question-num').textContent = `Q${currentQ + 1} / ${questions.length}`;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.textContent = ['A. ', 'B. ', 'C. ', 'D. '][i] + opt.text;
+    div.onclick = () => selectAnswer(i);
+    optsEl.appendChild(div);
+  });
+}
+
+function selectAnswer(idx) {
+  const opt = questions[currentQ].opts[idx];
+  for (let i = 0; i < 4; i++) scores[i] += opt.score[i];
+  answers.push(idx); // 记录答案
+
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showPage('loading');
+    setTimeout(calculateResult, 2000); // 模拟AI分析
+  } else {
+    renderQuestion();
+  }
+}
+
+function calculateResult() {
+  // 找出最高分
+  let maxIdx = 0;
+  for (let i = 1; i < 4; i++) {
+    if (scores[i] > scores[maxIdx]) maxIdx = i;
+  }
+  resultStyle = maxIdx;
+
+  const base = STYLE_BASE[maxIdx];
+  const premium = STYLE_PREMIUM[maxIdx];
+
+  document.getElementById('result-emoji').textContent = STYLE_EMOJIS[maxIdx];
+  document.getElementById('result-name').textContent = base.name;
+  document.getElementById('result-tagline').textContent = base.tagline;
+  document.getElementById('result-desc').innerHTML = base.desc;
+
+  // 付费内容（模糊遮罩）
+  document.getElementById('premium-section').innerHTML = `
+    <div class="content" style="filter:blur(8px);opacity:.3;user-select:none;">
+      <p style="color:#555">AI深度解读中...</p>
+      <p style="color:#555;font-size:13px">💌 ${premium.loveGuide.substring(0,40)}...</p>
+    </div>
+    <div class="premium-overlay">
+      <div class="lock">🔒</div>
+      <p class="title">解锁 AI 深度解读</p>
+      <p class="price">¥1.99 <small>/ 永久</small></p>
+      <p class="hint">AI 定制你的专属恋爱指南</p>
+      <button class="btn-pay" onclick="showPayment()">💫 立即解锁</button>
+    </div>
+  `;
+
+  document.getElementById('premium-section').dataset.premium = JSON.stringify(premium);
+
+  showPage('result');
+  updateProgress(); // 模拟实时人数
+}
+
+function updateProgress() {
+  const base = 128947;
+  const extra = Math.floor(Math.random() * 5);
+  document.querySelector('.stats b').textContent = (base + extra).toLocaleString();
+}
+
+function showPayment() {
+  document.getElementById('payment-modal').classList.add('active');
+  // 生成一个简单的二维码占位（实际部署用真实收款码图片）
+  const qrBox = document.getElementById('qr-box');
+  qrBox.innerHTML = `
+    <div style="text-align:center">
+      <div style="width:160px;height:160px;background:#fff;border-radius:12px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333;flex-direction:column">
+        <div style="font-size:48px">💳</div>
+        <div>扫码支付 ¥1.99</div>
+        <div style="font-size:10px;color:#999;margin-top:4px">收款方：个人账户</div>
+      </div>
+    </div>
+  `;
+}
+
+function closePayment() {
+  document.getElementById('payment-modal').classList.remove('active');
+}
+
+async function unlockPremium() {
+  closePayment();
+  showToast('⏳ AI 正在为你生成专属解读…');
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ style: resultStyle, answers: answers }),
+    });
+
+    const aiData = await resp.json();
+    renderPremiumContent(aiData);
+    showToast('✅ AI 专属解读已解锁！');
+  } catch (err) {
+    // 网络错误时也用兜底内容
+    console.error('AI API error:', err);
+    renderPremiumContent(getFallbackPremium());
+    showToast('✅ AI 深度解读已解锁！');
+  }
+}
+
+function getFallbackPremium() {
+  return JSON.parse(document.getElementById('premium-section').dataset.premium);
+}
+
+function renderPremiumContent(data) {
+  isPaid = true;
+
+  document.getElementById('premium-section').innerHTML = `
+    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:20px">
+      <div style="font-size:18px;font-weight:700;color:#f5576c;margin-bottom:16px">✨ AI 深度解读（已解锁）</div>
+
+      <div style="text-align:left;margin-bottom:20px">
+        <div style="font-size:15px;font-weight:600;color:#ddd;margin-bottom:8px">💌 专属恋爱指南</div>
+        <p style="font-size:14px;color:#b0b0c0;line-height:1.7">${data.loveGuide}</p>
+      </div>
+
+      <div style="text-align:left;margin-bottom:20px">
+        <div style="font-size:15px;font-weight:600;color:#e74c3c;margin-bottom:8px">⚠️ 情感盲区预警</div>
+        <p style="font-size:14px;color:#b0b0c0;line-height:1.7">${data.blindspot}</p>
+      </div>
+
+      <div style="text-align:left;margin-bottom:20px">
+        <div style="font-size:15px;font-weight:600;color:#2ecc71;margin-bottom:8px">💡 改善关系建议</div>
+        <p style="font-size:14px;color:#b0b0c0;line-height:1.7">${data.advice}</p>
+      </div>
+
+      <div style="text-align:left">
+        <div style="font-size:15px;font-weight:600;color:#f093fb;margin-bottom:8px">🎯 最匹配的人格类型</div>
+        <p style="font-size:14px;color:#b0b0c0;line-height:1.7">${data.match}</p>
+      </div>
+
+      <div style="margin-top:20px;padding:12px;background:rgba(46,204,113,.1);border-radius:12px;border:1px solid rgba(46,204,113,.2)">
+        <p style="font-size:13px;color:#2ecc71;text-align:center">✅ AI 专属解读 · 永久有效</p>
+      </div>
+    </div>
+  `;
+}
+
+function shareResult() {
+  const name = STYLE_BASE[resultStyle].name;
+  const emoji = STYLE_EMOJIS[resultStyle];
+  const shareText = `${emoji} 我的依恋人格是「${name}」！\n\n你也来测测你的隐藏爱情模式吧 👇`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'AI依恋人格测试',
+      text: shareText,
+      url: window.location.href
+    }).catch(() => {});
+  } else {
+    // 复制到剪贴板
+    navigator.clipboard.writeText(shareText + '\n' + window.location.href).then(() => {
+      showToast('📋 已复制，快去分享给朋友吧！');
+    }).catch(() => {
+      showToast('长按屏幕截图分享给朋友吧 📸');
+    });
+  }
+}
+
+function retryTest() {
+  startTest();
+}
+
+// 自动更新首页测试人数
+setInterval(updateProgress, 5000);
+</script>
+</body>
+</html>
