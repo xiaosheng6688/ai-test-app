@@ -425,14 +425,16 @@ function updateProgress() {
 
 function showPayment() {
   document.getElementById('payment-modal').classList.add('active');
-  // 生成一个简单的二维码占位（实际部署用真实收款码图片）
   const qrBox = document.getElementById('qr-box');
   qrBox.innerHTML = `
-    <div style="text-align:center">
-      <div style="width:160px;height:160px;background:#fff;border-radius:12px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333;flex-direction:column">
-        <div style="font-size:48px">💳</div>
-        <div>扫码支付 ¥1.99</div>
-        <div style="font-size:10px;color:#999;margin-top:4px">收款方：个人账户</div>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div style="text-align:center">
+        <img src="wx-pay.jpg" style="width:140px;height:140px;object-fit:cover;border-radius:12px;border:2px solid #07c160">
+        <div style="font-size:12px;color:#07c160;margin-top:6px;font-weight:600">微信支付</div>
+      </div>
+      <div style="text-align:center">
+        <img src="alipay.jpg" style="width:140px;height:140px;object-fit:cover;border-radius:12px;border:2px solid #1677ff">
+        <div style="font-size:12px;color:#1677ff;margin-top:6px;font-weight:600">支付宝</div>
       </div>
     </div>
   `;
